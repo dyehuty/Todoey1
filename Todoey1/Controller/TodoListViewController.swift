@@ -41,7 +41,7 @@ class TodoListViewController: UITableViewController{
 //        }
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
-        //Using custom Plist
+        //Using custom Plist - Core Data
         loadItems()
     }
     
