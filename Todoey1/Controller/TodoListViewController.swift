@@ -8,7 +8,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController{
+class TodoListViewController: SwipeTableViewController{
 
     var todoItems: Results<Item>?
     let realm = try! Realm()
@@ -28,6 +28,7 @@ class TodoListViewController: UITableViewController{
         
 
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+    
         
         //Using custom Plist - Core Data
 //        loadItems()
@@ -38,8 +39,7 @@ class TodoListViewController: UITableViewController{
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell  = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        
+        let cell = super.tableView(tableView,cellForRowAt: indexPath)
         
         
         if let item = todoItems?[indexPath.row] {
@@ -48,8 +48,7 @@ class TodoListViewController: UITableViewController{
             cell.accessoryType = item.done ? .checkmark : .none
         } else {
             cell.textLabel?.text = "No Items Added"
-        }
-        
+        }       
         return cell
     }
     
@@ -110,23 +109,22 @@ class TodoListViewController: UITableViewController{
     func loadItems(){
         
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-//        // Logic to CoreDat
-//        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-//
-//
-//        if let additionalPredicate = predicate {
-//            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,additionalPredicate])
-//        } else {
-//            request.predicate = categoryPredicate
-//        }
-//
-//        do{
-//            itemArray = try context.fetch(request)
-//        }catch {
-//            print("Error fetching data from context \(error)")
-//        }
+
         tableView.reloadData();
 
+    }
+    
+    //MARK: - Delete data from swipe
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write{
+                    self.realm.delete(itemForDeletion)
+                }
+            } catch{
+                print("Error deleting category,  \(error)")
+            }
+        }
     }
     
 }
